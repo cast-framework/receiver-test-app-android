@@ -16,39 +16,46 @@
 
 package com.castframework.android;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
+import android.widget.Toast;
 
-import com.davidtschida.android.cards.R;
 import com.castframework.android.framework.CastManager;
+import com.davidtschida.android.cards.R;
 
 /**
  * Main activity to send messages to the receiver.
  */
-public class MainActivity extends ActionBarActivity implements CastmanagerHost {
+public class MainActivity extends ActionBarActivity implements CastmanagerHost, DialogInterface.OnClickListener {
 
 	private static final String TAG = MainActivity.class.getSimpleName();
 
     CastManager mCastManager;
+    private Menu optionsMenu;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
-        mCastManager = new CastManager(this);
+        // 1. Instantiate an AlertDialog.Builder with its constructor
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+        // 2. Chain together various setter methods to set the dialog characteristics
+        builder.setTitle("Pick Environment")
+                .setItems(R.array.environment_names, this);
+
+        // 3. Get the AlertDialog from create()
+        AlertDialog dialog = builder.create();
+        dialog.show();
 
         initActionBar();
-
-        WelcomeFragment w = new WelcomeFragment();
-        getCastmanager().setConnectedListener(w);
-        getCastmanager().setOnMessageRecievedListener(w);
-
-        getSupportFragmentManager().beginTransaction().add(R.id.content, w).commit();
-	}
+    }
 
     private void initActionBar() {
         ActionBar actionBar = getSupportActionBar();
@@ -56,29 +63,51 @@ public class MainActivity extends ActionBarActivity implements CastmanagerHost {
                 R.color.blue));
     }
 
+    private void startCastManager(String app_id) {
+        mCastManager = new CastManager(this, app_id);
+        invalidateOptionsMenu();
+
+        WelcomeFragment w = new WelcomeFragment();
+        getCastmanager().setConnectedListener(w);
+        getCastmanager().setOnMessageRecievedListener(w);
+
+        getSupportFragmentManager().beginTransaction().add(R.id.content, w).commit();
+    }
+
 	@Override
 	protected void onResume() {
 		super.onResume();
-		mCastManager.onResume(this);
+		if(mCastManager != null) {
+            mCastManager.onResume(this);
+        }
 	}
 
 	@Override
 	protected void onPause() {
-		mCastManager.onPause(this);
 		super.onPause();
+        if(mCastManager != null) {
+            mCastManager.onPause(this);
+        }
 	}
 
 	@Override
 	public void onDestroy() {
-		mCastManager.onDestroy(this);
 		super.onDestroy();
+        if(mCastManager != null) {
+            mCastManager.onDestroy(this);
+        }
 	}
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		super.onCreateOptionsMenu(menu);
         getMenuInflater().inflate(R.menu.main, menu);
-        mCastManager.setMenu(menu);
+        Toast.makeText(getApplicationContext(), "menu", Toast.LENGTH_SHORT).show();
+        if(mCastManager != null) {
+            Toast.makeText(getApplicationContext(), "sdfsff", Toast.LENGTH_SHORT).show();
+            mCastManager.setMenu(menu);
+            mCastManager.onResume(this);
+        }
 
 		return true;
 	}
@@ -86,5 +115,11 @@ public class MainActivity extends ActionBarActivity implements CastmanagerHost {
     @Override
     public CastManager getCastmanager() {
         return mCastManager;
+    }
+
+    @Override
+    public void onClick(DialogInterface dialog, int which) {
+        String[] environment_ids = getResources().getStringArray(R.array.environment_ids);
+        startCastManager(environment_ids[which]);
     }
 }

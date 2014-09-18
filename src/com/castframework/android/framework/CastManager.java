@@ -49,9 +49,11 @@ public class CastManager {
     private String mSessionId;
     private OnMessageReceivedListener mMessageListener;
     private OnCastConnectedListener mConnectedListener;
+    private String app_id;
 
-    public CastManager(Context c) {
+    public CastManager(Context c, String app_id) {
         this.mContext = c;
+        this.app_id = app_id;
         init();
     }
 
@@ -60,8 +62,7 @@ public class CastManager {
         mMediaRouter = MediaRouter.getInstance(mContext.getApplicationContext());
         mMediaRouteSelector = new MediaRouteSelector.Builder()
                 .addControlCategory(
-                        CastMediaControlIntent.categoryForCast(mContext.getResources()
-                                .getString(R.string.app_id))).build();
+                        CastMediaControlIntent.categoryForCast(app_id)).build();
         mMediaRouterCallback = new MyMediaRouterCallback();
 
     }
@@ -137,7 +138,7 @@ public class CastManager {
                     // Launch the receiver app
                     Cast.CastApi
                             .launchApplication(mApiClient,
-                                    mContext.getString(R.string.app_id), false)
+                                    app_id, false)
                             .setResultCallback(
                                     new ResultCallback<Cast.ApplicationConnectionResult>() {
                                         @Override
