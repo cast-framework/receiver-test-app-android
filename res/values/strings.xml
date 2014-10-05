@@ -9,6 +9,7 @@
         <item>Ben</item>
         <item>Brandon</item>
         <item>Ben-Local</item>
+        <item>Joe</item>
     </string-array>
     <string-array name="environment_ids">
         <item>EEC8CC8C</item>
@@ -16,6 +17,7 @@
         <item>D77D563C</item>
         <item>DBDA58E6</item>
         <item>0E8AF7B7</item>
+        <item>C30B8AAD</item>
     </string-array>
     <string name="namespace">urn:x-cast:com.pokercast.receiver</string>
     <string name="action_settings">Settings</string>
